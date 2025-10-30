@@ -1,5 +1,6 @@
 package fun.jevon.string;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,14 +16,18 @@ import java.util.concurrent.Executors;
  */
 public class StringBufferDemo {
     
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         System.out.println("=== 线程安全测试 ===\n");
         
         // ========== StringBuilder测试（非线程安全） ==========
         System.out.println("1. StringBuilder测试（非线程安全）：");
         StringBuilder sb = new StringBuilder();
-        // 创建线程池，10个线程
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        // 创建线程池，10个线程（自定义线程名，便于在 VisualVM 中识别）
+        ExecutorService executor = Executors.newFixedThreadPool(10, r -> {
+            Thread t = new Thread(r);
+            t.setName("SB-Builder-" + t.getId());
+            return t;
+        });
         
         // 启动10个线程，每个线程向StringBuilder追加1000次数据
         for (int i = 0; i < 10; i++) {
@@ -30,6 +35,13 @@ public class StringBufferDemo {
                 // 每个线程追加1000次，每次追加固定长度的字符串："A-0," 这样的格式
                 for (int j = 0; j < 1000; j++) {
                     sb.append("A-" + j + ",");
+                    // 轻微放慢速度，便于观察线程活动
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
             });
         }
@@ -59,18 +71,29 @@ public class StringBufferDemo {
         System.out.println("2. StringBuffer测试（线程安全）：");
         // 直接使用StringBuffer，而不是通过StringBufferDemo包装
         StringBuffer stringBuffer = new StringBuffer();
-        // 重新创建线程池
-        executor = Executors.newFixedThreadPool(10);
-        
+        // 重新创建线程池（自定义线程名，便于在 VisualVM 中识别）
+        executor = Executors.newFixedThreadPool(10, r -> {
+            Thread t = new Thread(r);
+            t.setName("SB-Buffer-" + t.getId());
+            return t;
+        });
         // 启动10个线程，每个线程向StringBuffer追加1000次数据
         for (int i = 0; i < 10; i++) {
             executor.submit(() -> {
                 // 每个线程追加1000次，每次追加固定长度的字符串："A-" + j + ","
                 for (int j = 0; j < 1000; j++) {
                     stringBuffer.append("A-" + j + ",");
+                    // 轻微放慢速度，便于观察线程活动
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
             });
         }
+        System.in.read();
         
         // 等待所有线程执行完毕
         executor.shutdown();
