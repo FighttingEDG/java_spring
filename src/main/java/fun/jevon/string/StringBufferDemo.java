@@ -3,6 +3,7 @@ package fun.jevon.string;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * StringBuffer线程安全测试演示
@@ -29,35 +30,26 @@ public class StringBufferDemo {
             return t;
         });
         
-        // 启动10个线程，每个线程向StringBuilder追加1000次数据
+        // 启动10个线程，每个线程向StringBuilder追加100000000次数据
         for (int i = 0; i < 10; i++) {
             executor.submit(() -> {
-                // 每个线程追加1000次，每次追加固定长度的字符串："A-0," 这样的格式
-                for (int j = 0; j < 1000; j++) {
+                // 每个线程追加100000000次，每次追加固定长度的字符串："A-0," 这样的格式
+                for (int j = 0; j < 100000000; j++) {
                     sb.append("A-" + j + ",");
-                    // 轻微放慢速度，便于观察线程活动
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
                 }
             });
         }
         
         // 不再接收新任务，现有任务都执行完再关闭线程池
         executor.shutdown();
-        // 看所有线程是不是终止状态，每10毫秒执行一次
-        while (!executor.isTerminated()) {
-            Thread.sleep(10);
-        }
+        // 等待线程池结束（最多1分钟），避免主动sleep轮询
+        executor.awaitTermination(1, TimeUnit.MINUTES);
         
-        // 计算预期长度：10个线程 × 1000次 × 固定长度
+        // 计算预期长度：10个线程 × 100000000次 × 固定长度
         // 字符串格式："A-" + j + ","，长度分析：
         // A-0,=4, A-1,=4, ..., A-9,=4, A-10,=5, ..., A-99,=5, A-100,=6, ..., A-999,=6
         int expectedLength = 0;
-        for (int j = 0; j < 1000; j++) {
+        for (int j = 0; j < 100000000; j++) {
             String testStr = "A-" + j + ",";
             expectedLength += testStr.length();
         }
@@ -77,29 +69,19 @@ public class StringBufferDemo {
             t.setName("SB-Buffer-" + t.getId());
             return t;
         });
-        // 启动10个线程，每个线程向StringBuffer追加1000次数据
+        // 启动10个线程，每个线程向StringBuffer追加100000000次数据
         for (int i = 0; i < 10; i++) {
             executor.submit(() -> {
-                // 每个线程追加1000次，每次追加固定长度的字符串："A-" + j + ","
-                for (int j = 0; j < 1000; j++) {
+                // 每个线程追加100000000次，每次追加固定长度的字符串："A-" + j + ","
+                for (int j = 0; j < 100000000; j++) {
                     stringBuffer.append("A-" + j + ",");
-                    // 轻微放慢速度，便于观察线程活动
-                    try {
-                        Thread.sleep(1500);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
                 }
             });
         }
-        System.in.read();
         
         // 等待所有线程执行完毕
         executor.shutdown();
-        while (!executor.isTerminated()) {
-            Thread.sleep(10);
-        }
+        executor.awaitTermination(1, TimeUnit.MINUTES);
         
         // 使用相同的预期长度计算
         System.out.println("StringBuffer预期长度: " + expectedLength);
@@ -114,5 +96,11 @@ public class StringBufferDemo {
         System.out.println("• 选择建议：");
         System.out.println("  - 单线程环境：优先使用StringBuilder");
         System.out.println("  - 多线程环境：必须使用StringBuffer");
+
+        // 可选：任务结束后保活，便于 VisualVM 连接与观察
+        if (Boolean.getBoolean("hold.after")) {
+            System.out.println("\n[hold.after=true] 程序已完成计算，按 Enter 退出...");
+            System.in.read();
+        }
     }
 }
