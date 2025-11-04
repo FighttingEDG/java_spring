@@ -32,6 +32,7 @@ public class StringBufferDemo {
         
         // 启动10个线程，每个线程向StringBuilder追加100000000次数据
         for (int i = 0; i < 10; i++) {
+            // 将任务提交到线程池执行
             executor.submit(() -> {
                 // 每个线程追加100000000次，每次追加固定长度的字符串："A-0," 这样的格式
                 for (int j = 0; j < 100000000; j++) {
