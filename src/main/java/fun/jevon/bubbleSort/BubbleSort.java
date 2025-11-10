@@ -1,7 +1,10 @@
 package fun.jevon.bubbleSort;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 
 // 冒泡排序关键点，第一个for循环控制的是趟数，第二个for循环控制的是需要冒泡的次数
 public class BubbleSort {
