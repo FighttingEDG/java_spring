@@ -13,6 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * 4. WAITING - 等待状态：通过调用 wait() 方法，让线程等待
  * 5. TIMED_WAITING - 超时等待状态：通过 sleep()、join() 或 I/O 请求
  * 6. TERMINATED - 死亡状态：线程执行完毕或异常退出
+ *
+ * status枚举是只有这六种状态，有时候教材会有running，代表cpu调度执行的那一瞬间
  */
 public class ThreadStatusDemo {
 
