@@ -1,4 +1,4 @@
-package fun.jevon.Connection.set;
+package fun.jevon.collection.Connection.set;
 
 import java.util.*;
 import java.util.concurrent.*;

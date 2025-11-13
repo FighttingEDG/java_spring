@@ -1,4 +1,4 @@
-package fun.jevon.threadSafety;
+package fun.jevon.thread.threadSafety;
 
 /**
  * 线程安全方式性能排序（从高到低）

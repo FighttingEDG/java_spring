@@ -1,4 +1,4 @@
-package fun.jevon.linkedlist;
+package fun.jevon.collection.linkedlist;
 
 // 链表demo，手写实现的链表，在java原生中是没有链表的
 // java原生有的：数组（Array）、ArrayList、LinkedList、HashMap、HashSet、TreeMap、TreeSet、PriorityQueue、Deque

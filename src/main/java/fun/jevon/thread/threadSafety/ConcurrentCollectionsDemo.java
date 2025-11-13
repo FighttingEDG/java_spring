@@ -1,4 +1,4 @@
-package fun.jevon.threadSafety;
+package fun.jevon.thread.threadSafety;
 
 import java.util.HashSet;
 import java.util.Iterator;

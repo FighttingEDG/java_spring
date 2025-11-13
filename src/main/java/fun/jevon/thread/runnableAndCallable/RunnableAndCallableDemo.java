@@ -1,4 +1,4 @@
-package fun.jevon.Runnableandcallable;
+package fun.jevon.thread.runnableAndCallable;
 
 import java.util.concurrent.*;
 

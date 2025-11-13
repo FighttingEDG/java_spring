@@ -1,4 +1,4 @@
-package fun.jevon.threadSafety;
+package fun.jevon.thread.threadSafety;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;

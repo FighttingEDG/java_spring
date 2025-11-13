@@ -1,4 +1,4 @@
-package fun.jevon.Map;
+package fun.jevon.collection.Map;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
