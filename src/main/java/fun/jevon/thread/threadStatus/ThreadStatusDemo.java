@@ -23,11 +23,14 @@ public class ThreadStatusDemo {
     // 同一个线程可以多次获取同一把锁而不会死锁
     private static final Lock reentrantLock = new ReentrantLock();
 
-    // 中断异常
+    /**
+     * 主流程：依次演示 NEW → RUNNABLE → TIMED_WAITING(wait/join) → WAITING → BLOCKED → TERMINATED
+     */
     public static void main(String[] args) throws InterruptedException {
         System.out.println("=== 线程状态演示 ===\n");
 
         // ========== 状态1：NEW - 新建状态 ==========
+        // 创建线程对象但不调用 start()，线程保持 NEW
         System.out.println("【状态1：NEW - 新建状态】");
         Thread thread1 = new Thread(() -> {
             System.out.println("线程执行");
@@ -37,6 +40,7 @@ public class ThreadStatusDemo {
         System.out.println("说明：生成线程对象，但没有调用 start() 方法\n");
 
         // ========== 状态2：RUNNABLE - 就绪/运行状态 ==========
+        // 调用 start() 后线程进入 RUNNABLE；此处稍等后查看状态（可能已 TERMINATED）
         System.out.println("【状态2：RUNNABLE - 就绪/运行状态】");
         Thread thread2 = new Thread(() -> {
             System.out.println("  线程正在运行，当前状态：" + Thread.currentThread().getState());
@@ -49,6 +53,7 @@ public class ThreadStatusDemo {
         System.out.println("说明：调用了 start() 方法后，线程进入 RUNNABLE 状态（就绪或运行）\n");
 
         // ========== 状态3：TIMED_WAITING - 超时等待状态（sleep） ==========
+        // Thread.sleep() 会让线程进入 TIMED_WAITING 且不释放锁
         System.out.println("【状态3：TIMED_WAITING - 超时等待状态（sleep）】");
         Thread thread3 = new Thread(() -> {
             try {
@@ -64,6 +69,7 @@ public class ThreadStatusDemo {
         System.out.println("说明：通过 sleep() 方法，线程进入 TIMED_WAITING 状态\n");
 
         // ========== 状态4：TIMED_WAITING - 超时等待状态（join） ==========
+        // join() 期间调用线程进入 TIMED_WAITING，直到被等待线程结束或超时
         System.out.println("【状态4：TIMED_WAITING - 超时等待状态（join）】");
         Thread thread4 = new Thread(() -> {
             try {
@@ -89,6 +95,7 @@ public class ThreadStatusDemo {
         System.out.println("说明：通过 join() 方法，线程进入 TIMED_WAITING 状态\n");
 
         // ========== 状态5：WAITING - 等待状态（wait） ==========
+        // wait() 需要在同步块中调用，调用后释放锁并进入 WAITING，等待 notify/notifyAll
         System.out.println("【状态5：WAITING - 等待状态（wait）】");
         Thread thread5 = new Thread(() -> {
             synchronized (lock) {
@@ -110,6 +117,7 @@ public class ThreadStatusDemo {
         System.out.println("说明：通过 wait() 方法，线程进入 WAITING 状态\n");
 
         // ========== 状态6：BLOCKED - 阻塞状态（synchronized） ==========
+        // 当线程尝试获取被占用的 synchronized 锁时，会进入 BLOCKED
         System.out.println("【状态6：BLOCKED - 阻塞状态（synchronized）】");
         Thread thread6 = new Thread(() -> {
             synchronized (lock) {
@@ -136,6 +144,7 @@ public class ThreadStatusDemo {
         System.out.println("说明：线程7在获取 synchronized 同步锁失败时，进入 BLOCKED 状态\n");
 
         // ========== 状态7：TERMINATED - 死亡状态 ==========
+        // run() 执行完毕或抛异常后，线程进入 TERMINATED
         System.out.println("【状态7：TERMINATED - 死亡状态】");
         Thread thread8 = new Thread(() -> {
             System.out.println("线程执行完毕");
